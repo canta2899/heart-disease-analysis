@@ -1,0 +1,28 @@
+Age: displays the age of the individual
+
+Sex: displays the gender of the individual using the following format : 	1 = male 	0 = female
+
+Chest-pain type: displays the type of chest-pain experienced by the individual using the following format : 	0 = typical angina 	1 = atypical angina 	2 = non — anginal pain 	3 = asymptotic
+
+Resting Blood Pressure: displays the resting blood pressure value of an individual in mmHg (unit)
+
+Serum Cholestrol: displays the serum cholesterol in mg/dl (unit)
+
+Fasting Blood Sugar: compares the fasting blood sugar value of an individual with 120mg/dl. 	If fasting blood sugar > 120mg/dl then : 1 (true) 	else : 0 (false)
+
+Resting ECG : displays resting electrocardiographic results 	0 = normal 	1 = having ST-T wave abnormality 	2 = left ventricular hyperthrophy
+
+Max heart rate achieved : displays the max heart rate achieved by an individual.
+
+Exercise induced angina : 	1 = yes 	0 = no
+
+ST depression induced by exercise relative to rest: displays the value which is an integer or float.
+
+Peak exercise ST segment : 	0 = upsloping. —> normal 	1 = flat   —> issue 	2 = downsloping —> issue
+
+Number of major vessels (0–4) colored by flourosopy : displays the value as integer or float.
+
+Thal : displays the thalassemia : 	3 = normal 	6 = fixed defect (cronica) 	7 = reversible defect (reversibile)
+
+Diagnosis of heart disease : Displays whether the individual is suffering from heart disease or not : 	0 = absence 	1 = present.
+
