@@ -1,7 +1,6 @@
 Le malattie cardiovascolari attraverso i dati
 ================
-Andrea Cantarutti
-2/9/2020
+Andrea Cantarutti - 2/9/2020
 
 ## Introduzione
 
