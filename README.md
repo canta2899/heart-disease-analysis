@@ -1,6 +1,6 @@
 Le malattie cardiovascolari attraverso i dati
 ================
-Andrea Cantarutti - 2/9/2020 - [Web View](http://latoserver.dimi.uniud.it/~twc20_cantarutti/)
+Andrea Cantarutti - 1/9/2020 - [Web View](http://latoserver.dimi.uniud.it/~twc20_cantarutti/)
 
 ## Introduzione
 
