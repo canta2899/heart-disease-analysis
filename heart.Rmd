@@ -1,7 +1,7 @@
 ---
 title: "Le malattie cardiovascolari attraverso i dati"
 author: "Andrea Cantarutti"
-date: "1/9/2020"
+date: "01/09/2020"
 output: rmarkdown::github_document
   # html_document: default
  # pdf_document: default
