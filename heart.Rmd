@@ -1,10 +1,11 @@
 ---
 title: "Le malattie cardiovascolari attraverso i dati"
 author: "Andrea Cantarutti"
-date: "01/09/2020"
-output: rmarkdown::github_document
+date: "2/9/2020 - <a href='http://latoserver.dimi.uniud.it/~twc20_cantarutti/Presentation.html'>Slides</a>"
+output:
   # html_document: default
- # pdf_document: default
+  # pdf_document: default
+  rmarkdown::github_document
 ---
 
 
@@ -14,7 +15,7 @@ knitr::opts_chunk$set(cache = TRUE, message = FALSE, warning = FALSE)
 
 ## Introduzione
 
-Fra le problematiche maggiormente osservate ad ogni fascia di età, di sicuro occupano un posto preponderante quelle di natura cardiovascolare. In particolare, in Italia sono la principale cause di morbosità, invalidità e mortalità. 
+Fra le problematiche maggiormente osservate ad ogni fascia di età, di sicuro occupano un posto preponderante quelle di natura cardiovascolare. In particolare, in Italia sono la principale causa di morbosità, invalidità e mortalità. 
 Il ruolo del cuore e dell'apparato circolatorio è, d'altronde, fondamentale e un suo malfunzionamento è in grado di compromettere lo svolgimento di ogni azione quotidiana. Non a caso, negli anni la ricerca medica ha compiuto grandi passi avanti nella ricerca, analisi, prevenzione e cura delle malattie cardiache.
 
 
@@ -246,8 +247,8 @@ age_analysis %>%
   ggplot(aes(x=ageClass)) +
   geom_histogram(stat="count", fill="darkgreen", alpha=.7, color="black") +
   labs(title="Numero di pazienti malati divisi per classi d'età", y="Conto", x="Classe d'età")
-
 ```
+
 ```{r include=FALSE}
 
 # NOT INCLUDED!
@@ -740,7 +741,7 @@ Con più precisione, l'**analisi del segmento ST** è **cruciale** per la determ
 
 ### Interpretazione dei dati
 
-Nel dataset, due variabili vanno ad indicare le caratteristiche del tratto ST osservato in un paziente: 
+Nel dataset, tre variabili vanno ad indicare le caratteristiche del tratto ST osservato in un paziente: 
 
   * **OldPeak** - indica la misurazione in mm del segmento ST.
   * **PeakSlope** - indica la curvatura del segmento ST osservato, questa in particolare può essere
@@ -842,7 +843,7 @@ La probabilità subisce un lieve aumento e segue lo stesso modello rispetto al g
 Interrogando il dataset in relazione al numero di casi di persone **sane** manifestanti anomalie nel segmento ST riposo, il risultato ottenuto è sorprendente. 
 ```{r}
 heart %>%
-  filter(HasDisease == 1, RestECG == 1) %>%
+  filter(HasDisease == 0, RestECG == 1) %>%
   count()
 ```
 Nessun paziente che ha presentato anomalie a riposo ha, infatti, ricevuto una diagnosi negativa in relazione alla presenza di una malattia cardiovascolare.
