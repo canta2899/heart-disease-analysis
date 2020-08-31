@@ -1,12 +1,14 @@
 Le malattie cardiovascolari attraverso i dati
 ================
-Andrea Cantarutti - 2/9/2020 - [Web View](http://latoserver.dimi.uniud.it/~twc20_cantarutti/)
+Andrea Cantarutti
+2/9/2020 -
+<a href='http://latoserver.dimi.uniud.it/~twc20_cantarutti/Presentation.html'>Slides</a>
 
 ## Introduzione
 
 Fra le problematiche maggiormente osservate ad ogni fascia di età, di
 sicuro occupano un posto preponderante quelle di natura cardiovascolare.
-In particolare, in Italia sono la principale cause di morbosità,
+In particolare, in Italia sono la principale causa di morbosità,
 invalidità e mortalità. Il ruolo del cuore e dell’apparato circolatorio
 è, d’altronde, fondamentale e un suo malfunzionamento è in grado di
 compromettere lo svolgimento di ogni azione quotidiana. Non a caso,
@@ -920,7 +922,7 @@ ulteriori test specifici ai fini di una corretta diagnosi.
 
 ### Interpretazione dei dati
 
-Nel dataset, due variabili vanno ad indicare le caratteristiche del
+Nel dataset, tre variabili vanno ad indicare le caratteristiche del
 tratto ST osservato in un paziente:
 
   - **OldPeak** - indica la misurazione in mm del segmento ST.
@@ -1077,7 +1079,7 @@ ottenuto è sorprendente.
 
 ``` r
 heart %>%
-  filter(HasDisease == 1, RestECG == 1) %>%
+  filter(HasDisease == 0, RestECG == 1) %>%
   count()
 ```
 

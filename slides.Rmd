@@ -1,0 +1,691 @@
+---
+title: "Le malattie cardiovascolari attraverso i Dati"
+author: "Andrea Cantarutti"
+date: "1/9/2020"
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+    css: 'scrollable_slides.css'
+    logo: immagini/logo.jpg
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+## Perchè le malattie cardiovascolari
+<br/><br/>
+<div style="text-align: center; font-size: 30px;">
+
+ > - Principale causa di **morbosità**, **invalidità** e **mortalità**
+ 
+ <br/> <br/>
+ 
+ > - Incessante attività di **ricerca in campo medico**
+ 
+ <br/> <br/>
+ 
+ > - Interesse guidato da **esperienze personali**
+ 
+</div>
+
+## Il ruolo del cuore nell'organismo
+
+<div style="float: right; margin-top: 10px;">![](immagini/cuore_struttura.png){width=300px}</div>
+<br/>
+
+<br/><br/>
+<div style="font-size: 30px;">
+
+> * Trasportare sangue **ricco di ossigeno**
+
+<br/>
+
+> * Ricevere sangue **ricco di anidride carbonica**
+
+<br/>
+
+> * **Ossigenare** il sangue
+
+</div>
+
+## I Dati
+
+[Heart Disease UCI](https://www.kaggle.com/ronitf/heart-disease-uci), dataset a cura di: 
+
+  * **Hungarian Institute of Cardiology**. *Budapest: Andras Janosi, M.D.*
+  * **University Hospital**, **Zurich**, *Switzerland: William Steinbrunn, M.D.*
+  * **University Hospital**, **Basel**, *Switzerland: Matthias Pfisterer, M.D.*
+  * **V.A. Medical Center**, *Long Beach* and **Cleveland Clinic Foundation**: *Robert Detrano, M.D.*, *Ph.D.*
+  
+
+```{r include=FALSE}
+library(ggplot2)
+library(tidyr)
+library(tidyverse)
+library(dplyr)
+library(readr)
+library(corrplot)
+library(plotrix)
+library(gganimate)
+library(ggalt)
+library(cowplot)
+library(caret)
+library(caTools)
+
+new_names = c("Age", "Sex", "ChestPain", "RestingBloodPressure", "Cholesterol", "FastingBloodSugar", "RestECG", "MaxHeartRate", "ExerciseAngina", "OldPeak", "PeakSlope", "MajorVessels", "HasDisease")
+
+heart_original <- read.csv('heart2.csv')
+heart_original <- subset( heart_original, select = -thal )
+heart <- heart_original
+
+names(heart) = new_names
+names(heart_original) = new_names
+
+heart = heart %>%
+  mutate(Sex = case_when(Sex == 1 ~ "M", Sex == 0 ~ "F"),
+         HasDisease = case_when(HasDisease == 1 ~ "T", HasDisease == 0 ~ "F"),
+         FastingBloodSugar = case_when(FastingBloodSugar == 1 ~ "T", FastingBloodSugar == 0 ~ "F"),
+         ExerciseAngina = case_when(ExerciseAngina == 1 ~ "T", ExerciseAngina == 0 ~ "F")
+  )
+
+```
+
+```{r include = FALSE, echo=FALSE}
+correlation <- cor(heart_original)
+corrplot(correlation, method = "square", type="lower")
+```
+
+## Sesso ed età dei pazienti
+
+```{r echo=FALSE}
+heart %>% 
+  group_by(HasDisease) %>% 
+  summarise(n = n(), .groups="keep") %>%
+  ggplot(aes(y = n, x=HasDisease, fill=HasDisease)) +
+  geom_bar(stat="identity", color="black") +
+  geom_text(stat='identity', aes(label=n), vjust=10, fontface="bold", size=6, color="white") +
+  theme_void()
+```
+
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+SexDesSummary <- heart %>%
+  group_by(Sex, HasDisease) %>%
+  summarise(count=n(), .groups="keep") %>%
+  arrange(Sex, HasDisease)
+
+sum2 <- pie3D(SexDesSummary$count, explode=0, main="Distribuzione di uomini e donne in stato di salute o ammalati", theta=1)
+pie3D.labels(sum2, labels=c("Donne sane", "Donne malate", "Uomini sani", "Uomini malati"), radius=1.15, labelcex=0.9, theta=1)
+```
+
+---
+
+```{r echo=FALSE, fig.height = 2.8, fig.width = 4, fig.align = "center"}
+heart %>%
+  ggplot(aes(x=Sex, y=Age)) +
+  geom_boxplot(aes(fill=Sex), alpha=.8) +
+  theme_classic() +
+  theme(axis.title.x=element_blank(),
+    axis.text.x=element_blank(),
+    axis.ticks.x=element_blank()) +
+  transition_states(HasDisease) +
+  scale_y_binned(n.breaks = 10) +
+  labs(title="HasDisease: {closest_state}", x="Sesso", y="Età", fill="Sesso")
+```
+
+```{r include=FALSE, cho=FALSE, fig.align="center"}
+heart %>%
+  filter(HasDisease == "T") %>%
+  ggplot(aes(x=Age, fill=Sex)) +
+  geom_density(alpha=.5, colour="black") +
+  labs(x = "Età", y = "Densità", title="Distribuzione di densità riferita a persone affette da malattie cardiovascolari", fill="Sesso")
+```
+
+---
+
+```{r echo=FALSE, fig.align="center"}  
+# Vectorizing function for dividing patient's age in classes
+age = Vectorize(function(age){
+  if(age<30){
+    return("young")
+  }else if(age >= 30 && age < 60){
+    return("adult")
+  }else{
+    return("old")
+  }
+}, vectorize.args = c("age"))
+
+age_analysis = heart %>%
+  filter(HasDisease == "T") %>%
+  mutate(ageClass = age(Age))
+
+age_analysis %>%
+  ggplot(aes(x=ageClass)) +
+  geom_histogram(stat="count", fill="darkgreen", alpha=.7, color="black") +
+  labs(title="Numero di pazienti malati divisi per classi d'età", y="Conto", x="Classe d'età")
+```
+
+
+## Massimo battito cardiaco misurato
+
+```{r}
+max_heart_rate <- function(age){
+  return(220-age)
+}
+
+max_heart_rate(30)
+
+max_heart_rate(50)
+```
+
+---
+
+```{r echo=FALSE, fig.align="center"}
+heart %>%
+  ggplot(aes(x=Age, y=MaxHeartRate)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x="Età", y="Massimo battito cardiaco")
+```
+
+---
+
+```{r echo=FALSE, fig.height = 2.8, fig.width = 4.5, fig.align = "center"}
+maxHeartRateSummary <- heart %>%
+  mutate(MaxHeartRateOK = ifelse(MaxHeartRate <= 220-Age, "T", "F"))
+
+selection1 <- maxHeartRateSummary %>%
+  filter(MaxHeartRateOK == "F")
+
+selection2 <- maxHeartRateSummary %>%
+  anti_join(selection1)
+
+ggplot(maxHeartRateSummary, aes(x = Age, y = MaxHeartRate)) +
+  geom_encircle(data = selection2, linetype = 1, spread=0.02, expand=0, fill="white", alpha=.3) +
+  geom_encircle(data = selection1, linetype = 1, spread=0.02, expand=0, fill="white", alpha=.3) +
+  geom_point(aes(color=MaxHeartRateOK)) +
+  transition_states(HasDisease,
+                    transition_length = 2,
+                    state_length = 1) +
+  enter_fade() +
+  exit_fade() +
+  theme_classic() +
+  labs(title = "Has Disease: {closest_state}", x="Età", y="Massimo Battito Cardiaco")
+```
+
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+sum <- maxHeartRateSummary %>%
+  filter(HasDisease == "T") %>%
+  group_by(MaxHeartRateOK) %>%
+  summarise(count=n()) %>%
+  arrange(MaxHeartRateOK)
+
+bc <- pie3D(sum$count, explode=0, main="Battito cardiaco osservato in pazienti malati", theta=1)
+pie3D.labels(bc, labels=c("Oltre il limite", "Entro il limite"), radius=1.15, labelcex=0.9, theta=1)
+```
+
+---
+
+### Battito cardiaco in relazione ad una malattia cardiaca
+```{r echo=FALSE, fig.align="center"}
+heart_original %>%
+  ggplot(aes(x=MaxHeartRate, y=HasDisease)) +
+  geom_smooth() +
+  labs(x="Massimo Battito Cardiaco")
+```
+
+
+## Livello di zuccheri nel sangue
+
+<blockquote>
+
+  * **BS < 100 mg/dL** (*normale*)
+  * **100 mg/dl <= BS <= 120 mg/dL** (*aumento del rischio*)
+  * **BS > 120 mg/dL** (*alto rischio*)
+  
+</blockquote>
+
+<br/> <br/>
+Il dataset indica, tramite la variabile **FastingBloodSugar**, l'eventuale **superamento** del valore di **120 mg/dL**.
+
+---
+
+```{r echo=FALSE, fig.align="center"}
+heart %>%
+  filter(HasDisease == "T") %>%
+  ggplot() +
+  geom_histogram(aes(x=FastingBloodSugar, fill=Sex), stat="count", color = "black") +
+  labs(x="Livello di zucchero > 120 mg/dL", y="Pazienti malati", fill="Sesso")
+```
+
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+heart %>%
+  filter(FastingBloodSugar == "T") %>%
+  ggplot() +
+  geom_histogram(aes(x=HasDisease, fill=Sex), stat="count", color = "black") +
+  labs(x="HasDisease", y="Count", fill="Sesso") +
+  ggtitle("Persone con livelli superiori a 120 in relazione alla presenza di una malattia")
+```
+
+---
+
+### Livello di zuccheri in relazione ad età e sesso
+
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+heart_original %>%
+  ggplot(aes(x=Age, y=FastingBloodSugar)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x="Età", y="Zuccheri > 120")
+```
+
+```{r echo=FALSE, fig.align="center"}
+heart %>%
+  filter(FastingBloodSugar == "T") %>%
+  mutate(ageClass = age(Age)) %>%
+  ggplot() + 
+  geom_boxplot(aes(x=FastingBloodSugar, y=Age, fill=Sex), alpha=.8) +
+  scale_y_binned(n.breaks = 9) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  theme_classic() +
+  labs(x="Zuccheri > 120", y="Età", fill="Sesso")
+```
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+# Correlazione con la pressione sanguigna
+#  * **90 - 120**: *regolare*
+# * **120 - 140**: *lievemente alta*
+#  * **140 - 200**: *eccessivamente alta*
+
+heart_original %>%
+  mutate(HasDisease = ifelse(HasDisease == 1, "T", "F")) %>%
+  ggplot() +
+  geom_smooth(aes(y=FastingBloodSugar, x=RestingBloodPressure)) +
+  scale_x_continuous(n.breaks = 10) +
+  labs(x="Pressione sanguigna", y="Zuccheri > 120")
+```
+
+## L'influenza del colesterolo sierico
+
+<blockquote>
+  **Che cos'è il colesterolo sierico?**
+  
+  Una misura quantitativa di HDLC, LDLC e triglicerici presenti nel sangue
+</blockquote>
+
+> * Viene calcolato sommando la quantità di colesterolo HDL e LDL e aggiungendo il 20% del livello di trigliceridi presenti nel campione di sangue prelevato.
+> * Deve essere incluso in un range compreso fra **125** e **200 mg/dL** per persone di **età superiore ai 20 anni**
+
+---
+
+```{r echo=FALSE, fig.align="center"}
+heart %>%
+  ggplot() +
+  geom_boxplot(aes(x = Sex, y = Cholesterol, fill= HasDisease)) +
+  scale_y_continuous(n.breaks = 10) +
+  labs(x="Sesso", y="Colesterolo")
+```
+
+---
+
+### Una possibile motivazione 
+
+<br/><br/>
+<center>
+<blockquote>
+"I valori di colesterolo sierico, anche se sopra il limite massimo, non sono significativamente correlati con la quantificazione del rischio cardiovascolare. È consigliabile concentrarsi sul miglioramento della frazione HDL, sul potenziamento delle difese immunitarie e sul consumo di antiossidanti".
+</blockquote>
+</center>
+
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+heart_original %>%
+  ggplot(aes(x=Cholesterol, y=HasDisease)) +
+  geom_count(color="darkgreen", alpha=.7) +
+  geom_smooth(color="lightblue", alpha=.6) +
+  labs(x="Colesterolo")
+```
+
+---
+
+### Colesterolo in relazione all'età
+
+```{r echo=FALSE, fig.align="center"}
+heart %>%
+  filter(Age >= 35, Age <= 70) %>%
+  ggplot(aes(x=Age, y=Cholesterol, color=Sex)) +
+  geom_smooth() +
+  labs(x="Età", y="Colesterolo", color="Sesso")
+```
+
+## Il dolore al petto come metro diagnostico
+
+### Distinzioni
+
+<div style="text-align: center; margin-top: 10px; float: right;">![](immagini/angina.jpg){width=400px}</div>
+
+<div style="margin-top: 20px;">
+
+* **Dolore anginoso tipico**
+* **Dolore anginoso atipico**
+* **Dolore non anginoso**
+* **Asintomatico**
+
+</div>
+
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+# Typical Angina
+angina <- heart %>%
+  group_by(ChestPain, ExerciseAngina) %>%
+  mutate(ChestPain = case_when(ChestPain == 0 ~ "Typical Angina",
+                               ChestPain == 1 ~ "Atypical Angina",
+                               ChestPain == 2 ~ "No Angina",
+                               ChestPain == 3 ~ "Asymptotic")) %>%
+  summarise(count = n())
+
+angina
+```
+</center>
+
+---
+
+### Distribuzione
+
+```{r echo=FALSE, fig.align="center"}
+angina %>%
+  ggplot(aes(x=ChestPain, y=count, fill=ExerciseAngina)) +
+  geom_bar(stat="identity", color="black") +
+  labs(x="Dolore lamentato", y="Conto", fill="Angina indotta con esercizio")
+```
+
+---
+
+### Angina come segno di malattia cardiaca
+
+```{r echo=FALSE, fig.height = 2.5, fig.width = 5, fig.align = "center"}
+heart %>%
+  filter(ChestPain <= 1) %>%
+  mutate(ChestPain = ifelse(ChestPain==0, "Typical", "Atypical")) %>%
+  ggplot() +
+  geom_bar(aes(x = ChestPain, fill = Sex), color="black", position = position_dodge(preserve = "single")) + 
+  geom_text(aes(x=ChestPain,fill = Sex, label=..count..), stat="count", position=position_dodge(width=0.9), vjust=-0.25) +
+  theme_light() +
+  transition_states(HasDisease) +
+  labs(title="HasDisease: {closest_state}", x="Dolore al petto", y="Conto", fill="Sesso")
+```
+
+---
+
+### Malattia in assenza di dolore anginoso
+
+```{r include = FALSE, echo=FALSE, fig.align="center"}
+heart %>%
+  filter(ChestPain >= 2, HasDisease == "T") %>%
+  mutate(ChestPain = case_when(ChestPain == 2 ~ "Non Anginal",
+                               ChestPain == 3 ~ "Asymptotic")) %>%
+  group_by(ChestPain) %>%
+  summarise(count = n())
+```
+<br/>
+
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+heart %>%
+  filter(HasDisease == "T") %>%
+  mutate(Angina = ifelse(ChestPain <= 1, "T", "F")) %>%
+  ggplot(aes(x=Angina, fill=Sex)) +
+  geom_histogram(color="black", stat="count", alpha=.8) +
+  scale_y_continuous(n.breaks=20) +
+  labs(x="Dolore Anginoso", y = "Conto", fill="Sesso")
+```
+
+## Analisi del tracciato ST
+
+### Lettura di un tracciato ECG
+
+<center>![Schema di un tracciato ECG](immagini/ecg.png){width=450px}</center>
+
+---
+
+### Anomalia del tratto ST
+<br/><br/>
+<center>![Tracciato di un ECG](immagini/st_depression.png){width=600px}</center>
+
+---
+
+### Interpretazione dei dati
+
+  * **OldPeak** - indica la misurazione in mm del segmento ST.
+  
+  <br/>
+  
+  * **PeakSlope** - indica la curvatura del segmento ST osservato, questa in particolare può essere
+      * *Upsloping* (curvatura verso l'alta, indicata dal valore 0)
+      * *Flat* (piatta, indicata dal valore 1)
+      * *Downsloping* (curvatura verso il basso, indicata dal valore 2)
+      
+  <br/>
+  
+  * **RestingECG** - indica se il referto elettrocardiografico ha presentato:
+      * *Un tracciato normale* (indicato dal valore 0)
+      * *Anomalie nel tratto ST* (indicato dal valore 1)
+      * *Segni di ipetrofia sinistro-ventricolare* (indicato dal valore 2).
+      
+
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+# Cases of  LVH
+heart %>%
+  filter(RestECG == 2) %>%
+  group_by(HasDisease, ChestPain)%>%
+  summarise(count = n())
+```
+
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+heart %>%
+  filter(RestECG == 2) %>%
+  mutate(ChestPain = case_when(ChestPain == 0 ~ "Typical Angina", 
+                               ChestPain == 1 ~ "Atypical Angina", 
+                               ChestPain == 2 ~ "Non Anginal", 
+                               ChestPain == 3 ~ "Asymptotic")) %>%
+  ggplot() +
+  geom_histogram(aes(x=ChestPain), stat="count", alpha=.6, color="black", fill="orange") +
+  labs(x="Dolore al petto", y="Conto")
+```
+
+---
+
+### Anomalie del tratto ST
+
+```{r include=FALSE, echo=FALSE, fig.align="center"}
+heart %>%
+  ggplot(aes(x=OldPeak, y=PeakSlope)) +
+  geom_smooth() +
+  scale_y_continuous(trans = "reverse") +
+  labs(x="Altezza del frammento ST", y = "Curvatura del frammento ST", title="Correlazione fra altezza e curvatura del frammento ST")
+```
+
+```{r echo=FALSE, fig.height = 2.8, fig.width = 4, fig.align = "center"}
+heart %>%
+  mutate(PeakSlope = case_when(PeakSlope == 0 ~ "UP", PeakSlope == 1 ~ "FLAT", PeakSlope == 2 ~ "DOWN")) %>%
+  ggplot() +
+  geom_histogram(aes(x=PeakSlope, fill=Sex), stat="count", position="dodge", color="black") +
+  transition_states(HasDisease) +
+  labs(title="Has Disease: {closest_state}", x="Curvatura", y="Conto", fill="Sesso")
+```
+
+---
+
+### Correlazione con la presenza di una malattia
+
+```{r echo=FALSE, fig.align="center"}
+heart_original %>%
+  filter(RestECG <= 1) %>%
+  ggplot() +
+  geom_smooth(aes(x=RestECG, y=HasDisease)) +
+  labs(title="Correlazione fra risultato ECG e malattia cardiovascolare", x="ECG (0 normale, 1 anomalo)", y="Malattia cardiovascolare")
+```
+
+---
+
+### Strumento diagnostico efficace 
+
+<br/><br/><br/>
+<center>
+Numero di casi di pazienti sani che hanno dimostrato **anomalie nel tracciato ST a riposo**:
+```{r echo=FALSE, fig.align="center"}
+heart %>%
+  filter(HasDisease == 0, RestECG == 1) %>%
+  count()
+```
+</center>
+
+---
+
+### Presenza di dolore anginoso
+```{r echo=FALSE, fig.height = 2.5, fig.width = 4.5, fig.align = "center"}
+heart %>%
+  filter(RestECG == 1) %>%
+  mutate(ChestPain = case_when(ChestPain == 0 ~ "Typical Angina", 
+                               ChestPain == 1 ~ "Atypical Angina", 
+                               ChestPain == 2 ~ "Non Anginal", 
+                               ChestPain == 3 ~ "Asymptotic")) %>%
+  ggplot() + 
+  geom_histogram(aes(x=ChestPain), stat="count", fill="darkgreen", alpha=.7, color="black") +
+  transition_states(Sex) +
+  enter_fade() +
+  exit_fade() +
+  labs(title="Sesso: {closest_state}", x="Dolore al petto", y="Conto")
+```
+
+## Osservazioni in seguito a cateterismo cardiaco
+
+### La procedura
+<br/>
+<center>![Cateterismo cardiaco](immagini/catheterization_obstruction.jpg)</center>
+
+---
+
+### Motivazioni
+
+<br/><br/>
+
+<div style="font-size: 30px">
+
+  > * **Valutazione o conferma della presenza di patologie cardiovascolari**
+  
+  <br/><br/>
+ 
+  > * **Valutazione della funzionalità del muscolo cardiaco** 
+  
+  <br/><br/>
+ 
+  > * **Determinazione della necessità di ulteriori trattamenti (quali procedure di intervento e/o bypass chirurgici)**
+
+</div>
+
+---
+  
+### I Dati
+
+<br/> 
+
+* Variabile **MajorVessels**, in riferimento al numero di diramazioni dei **Grandi Vasi** colorate dal fluoroscopio.
+
+<br/> <br/>
+
+Con "Grandi Vasi", ci si riferisce a: 
+
+  * **Vena Cava superiore** e **inferiore**
+  * **Vene polmonari**
+  * **Arterie Polmonari**
+  * **Aorta**
+
+---
+
+### Nei pazienti malati
+```{r echo=FALSE, fig.align="center"}
+heart %>%
+  filter(HasDisease == "T") %>%
+  ggplot() +
+  geom_bar(aes(x=MajorVessels, fill=Sex), stat="count", position="dodge", color="black", alpha=.5) +
+  geom_density(aes(x=MajorVessels), stat="count", fill="white", alpha=.3, color="darkgreen") +
+  scale_y_continuous(n.breaks=10) +
+  labs(x="Diramazioni dei grandi vasi colorate dal fluoroscopio", y= "Conto", fill="Sesso")
+```
+
+---
+
+### Dolore anginoso in seguito alla mancanza di ossigenazione
+
+```{r echo=FALSE, fig.align="center"}
+heart %>%
+  filter(MajorVessels <= 3) %>%
+  mutate(ChestPain = case_when(ChestPain == 0 ~ 0, 
+                               ChestPain == 1 ~ 0, 
+                               ChestPain == 2 ~ 1, 
+                               ChestPain == 3 ~ 1)) %>%
+  ggplot() +
+  geom_smooth(aes(x=MajorVessels, y=ChestPain)) +
+  scale_y_continuous(n.breaks=10) +
+  scale_x_continuous(n.breaks = 2) +
+  labs(x="Diramazioni colorate dal fluoroscopio", y="Probabilità di dolore anginoso", title="Probabilità di  dolore anginoso con circolazione compromessa") +
+  theme_classic()
+```
+
+## Previsione di una malattia cardiovascolare
+
+### Impiego di un regressione logistico
+
+```{r}
+set.seed(1996)
+
+# Sostituzione dei valori 1 e 0 riferiti a presenza e assenza di malattia cardiaca con "true" e "false"
+model <- heart_original %>%
+  mutate(HasDisease = as.character(HasDisease)) %>%
+  mutate(HasDisease = fct_recode(HasDisease, true = '1', false = '0'))
+
+# Partizionamento del dataset in funzione del test del modello risultante
+training_slice <- createDataPartition(model$HasDisease, p = 0.80, list = FALSE)
+training <- model[training_slice,]
+testing <- model[-training_slice,]
+
+
+# Regressione Logistica
+trControl <- trainControl(summaryFunction = twoClassSummary,
+                          classProbs = TRUE)
+logistic_regressor <- train(HasDisease ~ ., data = training, method = 'glm', 
+                            family = binomial(link = 'logit'), trControl = trControl)
+```
+
+---
+
+### Test dell'accuratezza
+
+```{r}
+predictions <- predict(logistic_regressor, newdata = testing, type = 'prob')
+comparation <- data.frame(actual = testing$HasDisease,
+                         predicted = predictions$true)
+
+confusionMatrix(data = cut(predictions$true, 
+                           breaks = c(-Inf, 0.5, Inf), 
+                           labels = c('false', 'true')),
+                reference = testing$HasDisease,
+                positive = 'true', mode = 'everything')
+
+```
+
+
+## Conclusioni
+
+<center>![](immagini/watch.jpg){width=400px}</center>
+
+---
+<center>
+<div style="margin-top: 200px;">
+
+> "La medicina è un miscuglio di scienza, saggezza e **tecnologia**."
+>
+> `r tufte::quote_footer('Robert W. Platt')`
+
+</div>
+</center>
