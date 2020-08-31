@@ -403,7 +403,7 @@ angina %>%
 
 ### Angina come segno di malattia cardiaca
 
-```{r echo=FALSE, fig.height = 2.5, fig.width = 5, fig.align = "center"}
+```{r echo=FALSE, fig.height = 3.5, fig.width = 5, fig.align = "center"}
 heart %>%
   filter(ChestPain <= 1) %>%
   mutate(ChestPain = ifelse(ChestPain==0, "Typical", "Atypical")) %>%
@@ -415,11 +415,8 @@ heart %>%
   labs(title="HasDisease: {closest_state}", x="Dolore al petto", y="Conto", fill="Sesso")
 ```
 
----
-
-### Malattia in assenza di dolore anginoso
-
 ```{r include = FALSE, echo=FALSE, fig.align="center"}
+### Malattia in assenza di dolore anginoso
 heart %>%
   filter(ChestPain >= 2, HasDisease == "T") %>%
   mutate(ChestPain = case_when(ChestPain == 2 ~ "Non Anginal",
