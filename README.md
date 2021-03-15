@@ -1,10 +1,10 @@
 # Heart Disease Analysis
 
-This repository contains the project I've developed for the final exame of the course "Fundamentals of Data Science" at the [University of Udine](https://www.uniud.it/it) held by [Massimo Franceschet](https://users.dimi.uniud.it/~massimo.franceschet/ds/plugandplay/ds.html).
+This repository contains the project I've developed for the final exam of the course "Fundamentals of Data Science" at the [University of Udine](https://www.uniud.it/it) held by [Massimo Franceschet](https://users.dimi.uniud.it/~massimo.franceschet/ds/plugandplay/ds.html).
 
 ## Description
 
-I chose to work on a medical dataset I found on [Kaggle](https://www.kaggle.com/) named [Heart Disease UCI](https://www.kaggle.com/ronitf/heart-disease-uci) which provides the values of 14 different attributes observed in 303 patients. The aim of the analysis was determining the influence of different diagnostical factors in the occourence of cardiovascular diseases.
+I chose to work on a medical dataset I found on [Kaggle](https://www.kaggle.com/) named [Heart Disease UCI](https://www.kaggle.com/ronitf/heart-disease-uci) which provides values for 14 different attributes observed in 303 patients. The aim of the analysis was determining the influence of different diagnostical factors in the occourence of cardiovascular diseases.
 
 I've also been able to train a Logistic Regressor to predict cardiovascular diseases in patients with an accuracy degree of 80%. This lead me to some reflections on how Machine Learning and Data Science might become useful tools for physiciants in the future, if used ethically. 
 
@@ -20,7 +20,7 @@ The dataset used has been provided by the following clinics and universities:
 
 ## Tools used
 
-I used [RStudio](https://rstudio.com/) as my working environment and I wrote my analysis in [RMarkdown](https://rmarkdown.rstudio.com/). I even wrote a few slides (again, in RMarkdown using [ioslides presentation](https://bookdown.org/yihui/rmarkdown/ioslides-presentation.html) template) I used during the final presentation. However, slides contain only a subset of the overall analysis due to a time limit of 15 minutes. 
+I used [RStudio](https://rstudio.com/) as my working environment and I wrote my analysis in [RMarkdown](https://rmarkdown.rstudio.com/). I even wrote a few slides (again, in RMarkdown using [ioslides presentation](https://bookdown.org/yihui/rmarkdown/ioslides-presentation.html) template) that I used during the final presentation. However, slides contain only a subset of the overall analysis because I had to respect a 15 minutes limit.
 
 As requested by the assignement, I wrote the natural language part of both the analysis and slides in **Italian**. However, I tried to be careful on using meaningful variable names and using English comments in order to let you understand the code by itself.
 
