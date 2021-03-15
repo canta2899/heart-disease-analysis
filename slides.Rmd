@@ -7,7 +7,7 @@ output:
     widescreen: true
     smaller: true
     css: 'scrollable_slides.css'
-    logo: immagini/logo.jpg
+    logo: img/logo.jpg
 ---
 
 ```{r setup, include=FALSE}
@@ -32,7 +32,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
 ## Il ruolo del cuore nell'organismo
 
-<div style="float: right; margin-top: 10px;">![](immagini/cuore_struttura.png){width=300px}</div>
+<div style="float: right; margin-top: 10px;">![](img/cuore_struttura.png){width=300px}</div>
 <br/>
 
 <br/><br/>
@@ -76,7 +76,7 @@ library(caTools)
 
 new_names = c("Age", "Sex", "ChestPain", "RestingBloodPressure", "Cholesterol", "FastingBloodSugar", "RestECG", "MaxHeartRate", "ExerciseAngina", "OldPeak", "PeakSlope", "MajorVessels", "HasDisease")
 
-heart_original <- read.csv('heart2.csv')
+heart_original <- read.csv('data/heart2.csv')
 heart_original <- subset( heart_original, select = -thal )
 heart <- heart_original
 
@@ -363,7 +363,7 @@ heart %>%
 
 ### Distinzioni
 
-<div style="text-align: center; margin-top: 10px; float: right;">![](immagini/angina.jpg){width=400px}</div>
+<div style="text-align: center; margin-top: 10px; float: right;">![](img/angina.jpg){width=400px}</div>
 
 <div style="margin-top: 20px;">
 
@@ -440,13 +440,13 @@ heart %>%
 
 ### Lettura di un tracciato ECG
 
-<center>![Schema di un tracciato ECG](immagini/ecg.png){width=450px}</center>
+<center>![Schema di un tracciato ECG](img/ecg.png){width=450px}</center>
 
 ---
 
 ### Anomalia del tratto ST
 <br/><br/>
-<center>![Tracciato di un ECG](immagini/st_depression.png){width=600px}</center>
+<center>![Tracciato di un ECG](img/st_depression.png){width=600px}</center>
 
 ---
 
@@ -558,7 +558,7 @@ heart %>%
 
 ### La procedura
 <br/>
-<center>![Cateterismo cardiaco](immagini/catheterization_obstruction.jpg)</center>
+<center>![Cateterismo cardiaco](img/catheterization_obstruction.jpg)</center>
 
 ---
 
@@ -674,7 +674,7 @@ confusionMatrix(data = cut(predictions$true,
 
 ## Conclusioni
 
-<center>![](immagini/watch.jpg){width=400px}</center>
+<center>![](img/watch.jpg){width=400px}</center>
 
 ---
 <center>

@@ -1,7 +1,7 @@
 ---
 title: "Le malattie cardiovascolari attraverso i dati"
 author: "Andrea Cantarutti"
-date: "2/9/2020 - <a href='http://latoserver.dimi.uniud.it/~twc20_cantarutti/Presentation.html'>Slides</a>"
+date: "2/9/2020" 
 output:
   # html_document: default
   # pdf_document: default
@@ -31,7 +31,7 @@ A permettere lo scambio tra ossigeno e anidride carbonica sono i vasi sanguigni,
   3. l'**aorta**, che riporta e distribuisce il sangue carico di ossigeno all'organismo.
   
 <center>
-![Struttura del muscolo cardiaco](immagini/cuore_struttura.png){width=350px}
+![Struttura del muscolo cardiaco](img/cuore_struttura.png){width=350px}
 </center> <br/>
 
 Qualunque problematica che coinvolga il muscolo cardiaco e i vasi tramite i quali comunica con i tessuti e gli altri organi, si **riflette in immediato** sulla nostra vita quotidiana e, se trascurata, può comportare **danni irreversibili**.
@@ -98,7 +98,7 @@ Viene, inoltre, rimossa la variabile **thal** in riferimento alla presenza di Ta
 ```{r}
 new_names = c("Age", "Sex", "ChestPain", "RestingBloodPressure", "Cholesterol", "FastingBloodSugar", "RestECG", "MaxHeartRate", "ExerciseAngina", "OldPeak", "PeakSlope", "MajorVessels", "HasDisease")
 
-heart_original <- read.csv('heart2.csv')
+heart_original <- read.csv('data/heart2.csv')
 heart_original <- subset( heart_original, select = -thal )
 heart <- heart_original
 
@@ -611,7 +611,7 @@ La sua diagnosi può avvenire:
 * In seguito ad una prova sotto sforzo
 
 <center>
-![Manifestazioni di dolore anginoso in un paziente](immagini/angina.jpg){width=350px}
+![Manifestazioni di dolore anginoso in un paziente](img/angina.jpg){width=350px}
 </center>
 
 Il **dolore anginoso** può, inoltre, presentarsi in una forma **atipica**, la cui diagnosi risulta complessa a causa di una notevole difficoltà nel ricondurre la sintomatologia descritta ad un caso di angina pectoris.
@@ -706,13 +706,13 @@ Questo può essere osservato sul tracciato dell'**elettrocardiogramma** (ECG), u
 Il tracciato ECG di una completa pulsazione cardiaca è approssimabile a quanto schematizzato nell'immagine seguente. 
 
 <center>
-![A seguito della pulsazione cardiaca, si osserva il tracciato ST schematizzato](immagini/ecg.png){width=350px}
+![A seguito della pulsazione cardiaca, si osserva il tracciato ST schematizzato](img/ecg.png){width=350px}
 </center>
 <br/><br/>
 Nonostante ciò, un vero elettrocardiogramma ha normalmente un tracciato simile a quanto segue: 
 
 <center>
-![Tracciato di un ECG](immagini/vero_ecg.jpg)
+![Tracciato di un ECG](img/vero_ecg.jpg)
 </center>
 <br/><br/>
 
@@ -735,7 +735,7 @@ Inoltre, i **segmenti** vanno a indicare rispettivamente:
 Con più precisione, l'**analisi del segmento ST** è **cruciale** per la determinazione della eventuale **presenza di malattie cardiache**, che molto spesso ostacolano il processo di ripolarizzazione ventricolare (ma anche di problematiche quali aritmie, tachicardie, etc.). L'alterazione di tale tracciato (che normalmente si presenta piatto o con una leggera curvatura verso l'alto) permette ai medici di selezionare efficacemente ulteriori test specifici ai fini di una corretta diagnosi.
 
 <center>
-![Anomalie nel tratto ST](immagini/st_depression.png)
+![Anomalie nel tratto ST](img/st_depression.png)
 </center>
 <br/><br/>
 
@@ -903,7 +903,7 @@ Le motivazioni per le quali tale intervento viene abitualmente praticato sono le
 Viene di seguito riportata un'immagine relativa alla **visuale** che si ottiene in seguito all'iniezione del liquido di contrasto. In particolare, si osserva come, nel caso sia presente un'ostruzione (**sinistra**), non sia possibile visualizzare la prosecuzione dell'arteria a causa del mancato raggiungimento del liquido di contrasto. In seguito alla dilatazione dell'arteria per mezzo di una stenosi, si osserva come l'arteria risulti nuovamente visibile (**destra**) .
 
 <center>
-![Cateterismo cardiaco](immagini/catheterization_obstruction.jpg)
+![Cateterismo cardiaco](img/catheterization_obstruction.jpg)
 </center>
 ### Osservazione dei dati
 
